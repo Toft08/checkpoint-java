@@ -1,32 +1,30 @@
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class ProjectTime {
     private String startTime;
     private String endTime;
-    private long hoursLogged; // store total hours
+    private float hoursLogged;
 
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
     public ProjectTime(String start, String end) {
         this.startTime = start;
         this.endTime = end;
-        updateHoursLogged();
+        calculateHours();
     }
 
-    // --- Setters ---
     public void setStartTime(String start) {
         this.startTime = start;
-        updateHoursLogged();
+        calculateHours();
     }
 
     public void setEndTime(String end) {
         this.endTime = end;
-        updateHoursLogged();
+        calculateHours();
     }
 
-    // --- Getters ---
     public String getStartTime() {
         return startTime;
     }
@@ -37,41 +35,39 @@ public class ProjectTime {
 
     public String getHoursLogged() {
         if (hoursLogged == -1) {
-            return "-1"; // error
+            return "-1";
         }
-
-        // Apply the same threshold logic as before
-        long minutes = hoursLogged * 60;
-        if (minutes < 120) {
-            return minutes + " m";
-        } else if (hoursLogged < 120) {
-            return hoursLogged + " h";
-        } else {
-            long days = hoursLogged / 24;
-            if (days < 120) {
-                return days + " d";
+        float days = hoursLogged / 24f;
+            if (hoursLogged < 2) {
+            long minutes = (long) Math.floor(hoursLogged * 60);
+                return minutes + " m";
+            } else if (hoursLogged >= 2 && hoursLogged <120) {
+                long hours = (long) Math.floor(hoursLogged);
+                return hours + " h";
+            } else if (hoursLogged >= 120 && days <120) {
+                long d = (long) Math.floor(days);
+                return d + " d";
             } else {
-                long months = days / 30; // rough estimate
+                long months = (long) Math.floor(days / 30f);
                 return months + " mo";
             }
-        }
     }
 
-    // --- Helper ---
-    private void updateHoursLogged() {
+    private void calculateHours() {
         try {
-            LocalDateTime start = LocalDateTime.parse(startTime, formatter);
-            LocalDateTime end = LocalDateTime.parse(endTime, formatter);
+            Date start = formatter.parse(startTime);
+            Date end = formatter.parse(endTime);
 
-            if (end.isBefore(start)) {
-                hoursLogged = -1; // invalid
+            if (end.before(start)) {
+                hoursLogged = -1;
                 return;
             }
 
-            Duration diff = Duration.between(start, end);
-            hoursLogged = diff.toHours();
-        } catch (Exception e) {
-            hoursLogged = -1; // parsing or format error
+            long diffMillis = end.getTime() - start.getTime();
+            float diffHours = (float) diffMillis / (1000 * 60 * 60);
+            hoursLogged = diffHours;
+        } catch (ParseException | NullPointerException e) {
+            hoursLogged = -1;
         }
     }
 }
