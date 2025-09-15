@@ -4,6 +4,7 @@ import java.time.format.DateTimeFormatter;
 
 public class MonthlyPeriod {
     public String calculatePeriod(String startDate, String endDate) {
+        try {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         LocalDate start = LocalDate.parse(startDate, formatter);
@@ -17,5 +18,8 @@ public class MonthlyPeriod {
         } else {
             return "Period: " + years + "years and " + months + "months";
         }
+    } catch (Exception e) {
+        return "Error";
+    }
     }
 }
