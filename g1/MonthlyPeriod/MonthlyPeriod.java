@@ -10,14 +10,20 @@ public class MonthlyPeriod {
         LocalDate start = LocalDate.parse(startDate, formatter);
         LocalDate end = LocalDate.parse(endDate, formatter);
 
-        int months = Period.between(start, end).getMonths();
-        int years = Period.between(start, end).getYears();
+        int months = Math.abs(Period.between(start, end).getMonths());
+        int years = Math.abs(Period.between(start, end).getYears());
 
-        if (years == 0) {
-            return "Period: " + months + "months";
-        } else {
-            return "Period: " + years + "years and " + months + "months";
+        StringBuilder result = new StringBuilder();
+        if (years >= 1) {
+            result.append(years).append(years == 1 ? " year" : " years");
         }
+        if (months >= 1) {
+            if (!result.isEmpty()) {
+                result.append(" and ");
+            }
+            result.append(months).append(months == 1 ? " month" : " months");
+        }
+        return result.toString();
     } catch (Exception e) {
         return "Error";
     }
